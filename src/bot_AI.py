@@ -16,7 +16,7 @@ class BattleshipBot:
         elif self.mode == "axis":
             move = self.get_axis_move()
 
-        self.possible_targets.remove(move)
+        self.possible_targets.discard(move)
         return move
 
     def get_follow_move(self):
@@ -31,27 +31,32 @@ class BattleshipBot:
             return self.choose_move()
 
     def get_axis_move(self):
-        x1, y1 = self.last_hits[0]
-        x2, y2 = self.last_hits[1]
+        x_coords = [x for x, y in self.last_hits]
+        y_coords = [y for x, y in self.last_hits]
 
-        if x1 == x2:
+        if len(set(x_coords)) == 1:
             self.axis = "horizontal"
         else:
             self.axis = "vertical"
 
         targets = []
+
         if self.axis == "horizontal":
-            row = x1
-            for col_offset in [-1,1]:
-                col = self.last_hits[-1][1] + col_offset
-                if 0 <= col < BOARD_SIZE and (row, col) in self.possible_targets:
-                    targets.append((row, col))
+            row = x_coords[0]
+            min_col = min(y_coords)
+            max_col = max(y_coords)
+            if min_col - 1 >= 0 and (row, min_col - 1) in self.possible_targets:
+                targets.append((row, min_col - 1))
+            if max_col + 1 < BOARD_SIZE and (row, max_col + 1) in self.possible_targets:
+                targets.append((row, max_col + 1))
         else:  # vertical
-            col = y1
-            for row_offset in [-1,1]:
-                row = self.last_hits[-1][0] + row_offset
-                if 0 <= row < BOARD_SIZE and (row, col) in self.possible_targets:
-                    targets.append((row, col))
+            col = y_coords[0]
+            min_row = min(x_coords)
+            max_row = max(x_coords)
+            if min_row - 1 >= 0 and (min_row - 1, col) in self.possible_targets:
+                targets.append((min_row - 1, col))
+            if max_row + 1 < BOARD_SIZE and (max_row + 1, col) in self.possible_targets:
+                targets.append((max_row + 1, col))
 
         if targets:
             return random.choice(targets)

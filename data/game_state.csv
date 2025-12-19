@@ -1,1 +1,8 @@
 Turn,Player Move,Player Result,Bot Move,Bot Result
+1,"(1, 1)",miss,"(8, 7)",miss
+2,"(3, 3)",miss,"(2, 9)",miss
+3,"(4, 4)",miss,"(1, 8)",miss
+4,"(6, 6)",miss,"(8, 8)",miss
+5,"(7, 7)",miss,"(9, 1)",miss
+6,"(8, 8)",miss,"(5, 0)",miss
+7,"(9, 9)",miss,"(5, 9)",miss

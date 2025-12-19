@@ -18,9 +18,11 @@ def hit(x, y, board, visible_board, ships):
         if visible_board[x][y] == "~":
             if board[x][y] == "~":
                 visible_board[x][y] = "X"
+                board[x][y] = "X"
                 return ("miss", None)
             elif board[x][y] == "S":
                 visible_board[x][y] = "O"
+                board[x][y] = "O"
                 ship_idx = 0
                 for idx, ship in enumerate(ships):
                     if (x, y) in ship:
@@ -33,6 +35,7 @@ def hit(x, y, board, visible_board, ships):
                         for x_2, y_2 in coords_adjacent((x_1, y_1)):
                             if visible_board[x_2][y_2] == "~":
                                 visible_board[x_2][y_2] = "X"
+                                board[x_2][y_2] = "X"
                     del ships[ship_idx]
                     return ("sink", ship_coords)
                 return ("hit", None)
@@ -45,29 +48,34 @@ def game_loop(player_board, player_ships, bot_board, bot_ships):
     turn = 0
     while True:
         turn += 1
-        print_boards(player_board, visible_bot_board)
         
         xp_hit, yp_hit = (0, 0)
         resultp = ""
-        try:
-            xp_hit, yp_hit = map(int, input("Enter coordinates to hit (format: x1 y1): ").split(" "))
-            resultp, tmp = hit(xp_hit, yp_hit, bot_board, visible_bot_board, bot_ships)
-        except:
-            print("Invalid input!")
-            continue
-
-        if not bot_ships:
-            print("You have won!")
-            break
-
-        xb_hit, yb_hit = bot.choose_move()
-        resultb, ship_coords = hit(xb_hit, yb_hit, player_board, visible_player_board, player_ships)
-        bot.process_result((xb_hit, yb_hit), resultb, ship_coords)
-
+        while True:
+            try:
+                print_boards(player_board, visible_bot_board)
+                xp_hit, yp_hit = map(int, input("Enter coordinates to hit (format: x1 y1): ").split(" "))
+                resultp, tmp = hit(xp_hit, yp_hit, bot_board, visible_bot_board, bot_ships)
+            except:
+                print("Invalid input!")
+                continue
+            if resultp == "miss":
+                break
+            if not bot_ships:
+                print("You have won!")
+                return
         
-        if not player_ships:
-            print("You have lost!")
-            break
+        while True:
+            xb_hit, yb_hit = bot.choose_move()
+            resultb, ship_coords = hit(xb_hit, yb_hit, player_board, visible_player_board, player_ships)
+            bot.process_result((xb_hit, yb_hit), resultb, ship_coords)
+
+            if resultb == "miss":
+                break
+            
+            if not player_ships:
+                print("You have lost!")
+                return
 
         update_game_state(turn, (xp_hit, yp_hit), resultp, (xb_hit, yb_hit), resultb)
         
